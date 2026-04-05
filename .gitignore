@@ -2,6 +2,7 @@
 config.json
 .env
 .env.*
+.gitignore  # 如果你想保留这个就保留
 
 # 打包输出
 dist/
@@ -18,8 +19,15 @@ __pycache__/
 venv/
 ENV/
 
+# 调试日志
+debug-*.log
+*.log
+
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# macOS
+.DS_Store
