@@ -1,0 +1,25 @@
+# 配置文件（包含密钥）
+config.json
+.env
+.env.*
+
+# 打包输出
+dist/
+build/
+*.spec
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
