@@ -755,110 +755,77 @@ def get_system_prompt(config, input_text: str = "") -> str:
 # 改写相关提示词
 # =============================================================================
 
-def build_rewrite_prompt() -> str:
+def build_rewrite_prompt(simple_mode: bool = True) -> str:
     """
     改写提示词：将普通英文转换为商务英语格式。
     保持原文长度相当，只优化表达的专业度和商务感。
+    
+    Args:
+        simple_mode: True = 简单词汇模式（默认），False = 标准商务模式
     """
-    return """You are a professional business English editor specializing in corporate communication.
+    if simple_mode:
+        return """You are a professional business English writer.
 
-## YOUR CORE TASK
-Transform casual or informal English text into polished, professional business English.
+## TASK
+Rewrite the user's text into a professional business English email.
+- Output MUST be in English
+- Keep ALL content - every paragraph, every line, no skipping
+- Preserve original structure and formatting
+- Use simple, clear English words
+- Dates in M/D format (4/3, not April 3rd)
+- Bullet format:
+-.
+ Item 1
+-.
+ Item 2
+- Plain text only, no markdown
 
-## MANDATORY RULES (Follow EXACTLY)
+## EXAMPLES
 
-### Meaning & Intent Preservation
-- Keep the EXACT same meaning - do not interpret, expand, or add implied meanings
-- Preserve the original tone intent (friendly but want to be polite → keep friendly)
-- Do not add diplomatic softening beyond what the original tone suggests
+Input: Hi, can you send me the report?
+Output: Hi, could you please send me the report?
 
-### Content Integrity
-- KEEP the same approximate length (within ±10% of original)
-- PRESERVE all specific names, numbers, dates, technical terms, and data
-- KEEP original formatting: bullet points, numbered lists, line breaks, indentation
-- Do NOT add greetings, closings, or signatures unless explicitly present in original
-- Do NOT add explanatory notes or comments about your changes
+Input: 
+The project is done.
+Here are the results:
+1. Sales up 20%
+2. Costs down 15%
+Output: 
+The project has been completed.
+Here are the results:
+-.
+ Sales up 20%
+-.
+ Costs down 15%
 
-### Vocabulary & Style
-- Use professional vocabulary appropriate for business email
-- Replace colloquialisms with professional equivalents
-- Use formal connector phrases: "furthermore," "therefore," "consequently," "accordingly"
-- Avoid filler words: "actually," "basically," "literally," "honestly"
+TEXT TO TRANSFORM:
 
-### Strict Output Format
-- Output ONLY the rewritten text
-- NO quotes around the output
-- NO explanations, comments, or annotations
-- NO prefix like "Here is your rewritten text:"
-- Start directly with the rewritten content
+"""
+    else:
+        return """You are a professional business English editor.
 
-## EXAMPLE TRANSFORMATIONS
+## TASK
+Rewrite into professional business English.
+- Keep ALL content - preserve every paragraph and line
+- Maintain original structure and formatting
+- Use professional business vocabulary
+- Plain text only
 
-### Casual → Professional
-Input: "Hey, I wanted to let you know that the meeting got moved to Thursday."
-Output: "I wanted to inform you that the meeting has been rescheduled to Thursday."
-
-### Informal Request → Polite Request
-Input: "Can you send me the files when you get a chance?"
-Output: "Would you kindly send me the files at your earliest convenience?"
-
-### Casual Acknowledgment → Formal Acknowledgment
-Input: "Thanks for getting back to me. We'll try to finish the project ASAP."
-Output: "Thank you for your response. We will endeavor to complete the project as soon as possible."
-
-### Direct Decline → Diplomatic Decline
-Input: "Sorry but we can't do that."
-Output: "Unfortunately, we are unable to accommodate that request."
-
-### Informal Update → Professional Update
-Input: "So, the client loved the proposal! We're good to go ahead."
-Output: "The client has reviewed the proposal favorably. We are approved to proceed."
-
-### Casual Question → Professional Inquiry
-Input: "What's the status on the report?"
-Output: "Could you please provide an update on the report's progress?"
-
-## SPECIAL CASES - HANDLE EXACTLY AS FOLLOWS
-
-1. **Code or technical terms**: Keep them exactly as-is
-   - Input: "Please update the config.json file"
-   - Output: "Please update the config.json file" (no change)
-
-2. **Already formal text**: Make minimal changes, preserve formality
-   - Input: "We acknowledge receipt of your inquiry."
-   - Output: "We acknowledge receipt of your inquiry." (no change needed)
-
-3. **Very short inputs (under 10 words)**: Be conservative with changes
-   - Input: "Please advise."
-   - Output: "Please advise." (already professional)
-
-4. **Mixed formality in one text**: Match the highest formality level present
-   - Input: "The meeting is tomorrow. Can you make it?"
-   - Output: "The meeting is scheduled for tomorrow. Would you be available to attend?"
-
-5. **Negative/negative politeness**: Preserve the softening
-   - Input: "I'm afraid there may be a delay."
-   - Output: "There may be a slight delay." (or preserve if already optimal)
-
-6. **Percentage/quantities**: Never round or approximate
-   - Input: "A 15.7% increase"
-   - Output: "A 15.7% increase" (keep exactly)
-
-7. **URLs and emails**: Preserve verbatim
-   - Input: "Contact us at support@company.com"
-   - Output: "Contact us at support@company.com" (no change)
-
-## TEXT TO REWRITE:
+TEXT TO REWRITE:
 
 """
 
 
-def get_rewrite_prompt(config) -> str:
+def get_rewrite_prompt(config, simple_mode: bool = True) -> str:
     """
     获取改写提示词。
     如果配置中有自定义改写提示词，则使用自定义提示词；否则使用默认提示词。
+    
+    Args:
+        config: 配置对象
+        simple_mode: True = 简单词汇模式（默认），False = 标准商务模式
     """
     custom_prompt = getattr(config, 'rewrite_system_prompt', None)
     if custom_prompt and custom_prompt.strip():
         return custom_prompt.strip()
-    return build_rewrite_prompt()
+    return build_rewrite_prompt(simple_mode=simple_mode)
